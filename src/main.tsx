@@ -4,7 +4,7 @@ import { createBrowserRouter } from 'react-router'
 import { RouterProvider } from 'react-router/dom'
 import './index.css'
 import { AppProviders } from '@/app/AppProviders'
-import { routes } from '@/app/router'
+import { createRoutes } from '@/app/router'
 import { createQueryClient } from '@/lib/query-client'
 
 // The mock API is the only backend, so it runs in production builds too
@@ -34,7 +34,7 @@ async function bootstrap() {
   await enableMocking()
   const devTools = await loadDevTools()
   const queryClient = createQueryClient()
-  const router = createBrowserRouter(routes)
+  const router = createBrowserRouter(createRoutes(queryClient))
 
   createRoot(rootElement).render(
     <StrictMode>

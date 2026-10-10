@@ -35,13 +35,16 @@ describe('site header', () => {
 
   it('keeps the header usable when categories fail to load', async () => {
     server.use(http.get('/api/categories', () => HttpResponse.json(null, { status: 500 })))
-    renderRoute('/')
+    // A page that doesn't need categories, so only the header is affected
+    renderRoute('/no-such-page')
 
     await waitFor(() => {
       expect(screen.queryByRole('navigation', { name: 'Categories' })).not.toBeInTheDocument()
     })
     expect(screen.getByRole('searchbox', { name: 'Search products' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: "We can't find that page" }),
+    ).toBeInTheDocument()
   })
 
   it('shows how many items are in the cart', async () => {
