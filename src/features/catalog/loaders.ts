@@ -2,7 +2,13 @@ import type { QueryClient } from '@tanstack/react-query'
 import type { LoaderFunctionArgs } from 'react-router'
 import { ApiError } from '@/lib/http'
 import type { ProductListQuery } from '@/lib/schemas/catalog'
-import { categoriesQueryOptions, productListQueryOptions } from './api'
+import {
+  categoriesQueryOptions,
+  productListQueryOptions,
+  productQueryOptions,
+  relatedProductsQueryOptions,
+  reviewsQueryOptions,
+} from './api'
 import { parseListingParams, toProductListQuery } from './listing-params'
 
 export const featuredProductsQuery: ProductListQuery = {
@@ -54,6 +60,20 @@ export function searchLoader(queryClient: QueryClient) {
           ...productListQueryOptions(toProductListQuery(listing, {})),
           revalidateIfStale: true,
         }),
+    ])
+    return null
+  }
+}
+
+export function productLoader(queryClient: QueryClient) {
+  return async ({ params }: LoaderFunctionArgs) => {
+    const slug = params.slug ?? ''
+    // Below-the-fold sections start loading now but don't hold up the page
+    void queryClient.prefetchInfiniteQuery(reviewsQueryOptions(slug))
+    void queryClient.prefetchQuery(relatedProductsQueryOptions(slug))
+    await Promise.all([
+      queryClient.ensureQueryData({ ...productQueryOptions(slug), revalidateIfStale: true }),
+      queryClient.ensureQueryData(categoriesQueryOptions()),
     ])
     return null
   }

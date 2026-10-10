@@ -1,9 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query'
 import type { RouteObject } from 'react-router'
 import { ListingSkeleton } from '@/features/catalog/components/ListingSkeleton'
-import { categoryLoader, homeLoader, searchLoader } from '@/features/catalog/loaders'
+import { ProductDetailSkeleton } from '@/features/catalog/components/ProductDetailSkeleton'
+import { categoryLoader, homeLoader, productLoader, searchLoader } from '@/features/catalog/loaders'
 import { CategoryPage } from '@/features/catalog/pages/CategoryPage'
 import { HomePage } from '@/features/catalog/pages/HomePage'
+import { ProductPage } from '@/features/catalog/pages/ProductPage'
 import { SearchPage } from '@/features/catalog/pages/SearchPage'
 import { AppLayout } from './layout/AppLayout'
 import { NotFoundPage } from './routes/NotFoundPage'
@@ -31,6 +33,12 @@ export function createRoutes(queryClient: QueryClient): RouteObject[] {
               loader: categoryLoader(queryClient),
               Component: CategoryPage,
               HydrateFallback: ListingSkeleton,
+            },
+            {
+              path: 'p/:slug',
+              loader: productLoader(queryClient),
+              Component: ProductPage,
+              HydrateFallback: ProductDetailSkeleton,
             },
             {
               path: 'search',
