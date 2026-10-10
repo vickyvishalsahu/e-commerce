@@ -2,6 +2,18 @@
 
 Every time the AI needed a correction, or a tool did something surprising that the AI had to catch. Newest phase first.
 
+## Phase 2 - App shell
+
+**React Router is on v8, not v7.** Same story as MSW: the plan and CLAUDE.md both said v7. Checking the registry before writing any routing code showed v8, so the AI read the changelog first. The changes that matter here: `RouterProvider` moved to `react-router/dom` and `react-router-dom` is gone. Lesson: pin "check the installed major" as a step, not a hope. Version drift has now hit two of the first three phases.
+
+**The obvious folder for the layout broke the project's own import rule.** The header composes features (category nav, cart badge), and CLAUDE.md says `components/` must not import features. Putting the layout in `components/layout` would have quietly broken that rule. The fix was a new `src/app` layer, the only place allowed to compose features. It's now documented.
+
+**A failing e2e test was a test bug, not an app bug.** "Tab reaches the skip link first" failed. The app mounts only after the mock service worker starts, so the test pressed Tab on an empty page. Waiting for the header fixed it. Worth checking a hypothesis before "fixing" the app.
+
+**Mutation testing found a gap again.** Four deliberate bugs went into the shell. Three were caught; the cart badge's singular label ("1 item" vs "1 items") wasn't. Added a test.
+
+**Small tooling surprises.** shadcn's toast component pulls in `next-themes` (harmless without a provider). jsdom lacks `matchMedia` (sonner needs it) and `scrollTo` (ScrollRestoration logs on every render), so both are stubbed in test setup to keep output clean enough to notice real warnings.
+
 ## Phase 1 - Mock backend
 
 **MSW is on v3, not the v2 the plan assumed.** The AI checked the installed version before writing handlers, which mattered: `onUnhandledRequest` became `onUnhandledFrame`, and v3 ships a Vite plugin that serves the worker script. The rename was still missed once and only caught by the typechecker. Strict TypeScript is doing real work against version drift.
