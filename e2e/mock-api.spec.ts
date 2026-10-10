@@ -37,7 +37,7 @@ test.beforeEach(async ({ page }) => {
     }
   })
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'Storefront' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Storefront', exact: true })).toBeVisible()
 })
 
 test('serves the catalog from the service worker', async ({ page }) => {
@@ -63,7 +63,7 @@ test('keeps cart state across a reload', async ({ page }) => {
   })
 
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Storefront' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Storefront', exact: true })).toBeVisible()
   const afterReload = cartSchema.parse((await callApi(page, '/api/cart', { cartId: cart.id })).json)
 
   expect(afterReload.items).toHaveLength(1)

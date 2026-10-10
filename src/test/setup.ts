@@ -4,6 +4,18 @@ import { afterAll, afterEach, beforeAll } from 'vitest'
 import { resetDatabase } from '@/mocks/db'
 import { server } from '@/mocks/node'
 
+// jsdom has no matchMedia; components that read media queries (the toaster) need one
+window.matchMedia ??= (query: string) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addEventListener: () => undefined,
+  removeEventListener: () => undefined,
+  addListener: () => undefined,
+  removeListener: () => undefined,
+  dispatchEvent: () => false,
+})
+
 beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' })
 })
