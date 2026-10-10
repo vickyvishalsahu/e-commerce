@@ -2,6 +2,20 @@
 
 Every time the AI needed a correction, or a tool did something surprising that the AI had to catch. Newest phase first.
 
+## Phase 4 - Product detail
+
+**A flaky test was a real bug.** Two tests failed now and then: one category filter test from phase 3 and a new product page test. Both came down to the same thing: two quick changes to the URL lost the first one. React Router's `setSearchParams` updater gets the URL from the last render, not the navigation still loading. With 400ms of mock latency in dev, picking "4 stars & up" and then "In stock only" kept only the stock filter. A Playwright test with 800ms latency reproduced it. The first fix (build on `useNavigation().location`) passed alone but failed when the suite ran in parallel. Reading the router source showed why: it applies the pending navigation inside a React transition, which can render after the next click. The fix also passes `flushSync`. The repro fails on the old code and passes on the fix, checked both ways. Lesson: retrying a flaky test hides bugs like this; finding out why it flakes is what caught it.
+
+**A regression test that couldn't fail got deleted.** The same repro on the product page passed even against the buggy code, because the product loader reads from cache and the race window is too small to hit. It was removed rather than left as false coverage.
+
+**Mutation testing found dead code, not a missing test.** Of six deliberate bugs, five were caught. The sixth changed nothing: a "size not chosen yet" guard could never change the result, because sized products have no variant without a size. The guard was deleted.
+
+**Unexplained failure in the worktree check.** The first clean-worktree check this phase failed, then passed 13 times in a row, and the script had thrown away the log. It now keeps the log so the next failure can be diagnosed. Not seen again this phase.
+
+**Screenshots caught a layout problem.** On desktop the main photo filled the screen and pushed the thumbnails below the fold, so nothing showed there were more photos. Thumbnails now sit in a column beside the photo from `lg` up.
+
+**Playwright won't click visually hidden inputs.** The colour and size options are native radios hidden with `sr-only` inside styled labels, which gives keyboard and screen reader support for free. Playwright refuses to click the hidden input, so e2e tests click the label, the way a shopper does.
+
 ## Phase 3 - Catalog
 
 **The first real bug was invisible to the unit tests.** All tests passed, but the home page crashed in the browser with a TanStack `CancelledError`. Under StrictMode the header's category query mounted, unmounted and remounted. Because the query function consumed the abort signal, the unmount cancelled the fetch the route loader was awaiting. The tests didn't render in StrictMode, so they never saw it. Fix order: render tests in StrictMode, watch the home test fail with the same error, then stop passing `signal` from query functions. Lesson: the test harness has to match how the app actually boots, or "green" is about a different app. Looking at the running app caught what 124 tests didn't.
