@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
+    "generate:catalog": "node scripts/generate-catalog.ts",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
     "preview": "vite preview",
     "release": "./release dev"
