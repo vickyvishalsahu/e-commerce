@@ -9,6 +9,9 @@ export function isRetryableError(error: unknown) {
   return error instanceof TypeError
 }
 
+// Query functions deliberately ignore TanStack's abort signal. Loaders and components share
+// queries, and a component unmounting (StrictMode does this on purpose) would otherwise cancel
+// a fetch that a loader is still awaiting.
 export function createQueryClient() {
   return new QueryClient({
     defaultOptions: {

@@ -10,8 +10,8 @@ export const cartKeys = {
 export function cartQueryOptions() {
   return queryOptions({
     queryKey: cartKeys.all,
-    queryFn: async ({ signal }) => {
-      const cart = await request('/api/cart', { schema: cartSchema, signal })
+    queryFn: async () => {
+      const cart = await request('/api/cart', { schema: cartSchema })
       // The API creates a guest cart on first request; remember it for later requests
       setGuestCartId(cart.id)
       return cart

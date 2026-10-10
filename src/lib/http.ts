@@ -36,13 +36,12 @@ interface RequestOptions<T extends z.ZodType> {
   schema: T
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
   body?: unknown
-  signal?: AbortSignal
 }
 
 /** Fetches from the API and parses the response with `schema`. Non-2xx responses throw ApiError. */
 export async function request<T extends z.ZodType>(
   path: string,
-  { schema, method = 'GET', body, signal }: RequestOptions<T>,
+  { schema, method = 'GET', body }: RequestOptions<T>,
 ): Promise<z.infer<T>> {
   const headers = new Headers({ Accept: 'application/json' })
   if (body !== undefined) headers.set('Content-Type', 'application/json')
@@ -53,7 +52,6 @@ export async function request<T extends z.ZodType>(
     method,
     headers,
     body: body === undefined ? undefined : JSON.stringify(body),
-    signal,
   })
   if (!response.ok) throw await toApiError(response)
 

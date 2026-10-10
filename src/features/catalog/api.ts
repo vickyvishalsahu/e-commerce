@@ -11,8 +11,7 @@ export const catalogKeys = {
 export function categoriesQueryOptions() {
   return queryOptions({
     queryKey: catalogKeys.categories(),
-    queryFn: ({ signal }) =>
-      request('/api/categories', { schema: z.array(categoryWithCountSchema), signal }),
+    queryFn: () => request('/api/categories', { schema: z.array(categoryWithCountSchema) }),
     // The category list is fixed for the life of the app
     staleTime: Infinity,
   })
