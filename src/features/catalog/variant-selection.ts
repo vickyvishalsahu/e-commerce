@@ -41,7 +41,6 @@ export function parseVariantSelection(
 
 /** The variant the shopper has fully chosen, or undefined while a size is still missing. */
 export function findSelectedVariant(product: Product, selection: VariantSelection) {
-  if (product.sizes.length > 0 && selection.size === null) return undefined
   return product.variants.find((v) => v.color === selection.color && v.size === selection.size)
 }
 
