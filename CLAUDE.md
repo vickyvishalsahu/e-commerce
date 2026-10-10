@@ -16,7 +16,7 @@ pnpm only, never npm or npx (use `pnpm exec` / `pnpm dlx`).
 Training data mixes old APIs for these libraries. Check `package.json` and use the current major only.
 
 - React 19. No `forwardRef` in new code (ref is a prop), no `React.FC`.
-- React Router v7 in data mode: `createBrowserRouter` + `RouterProvider`, imported from `react-router` (not `react-router-dom`).
+- React Router v8 in data mode: `createBrowserRouter` from `react-router`, `RouterProvider` from `react-router/dom`. `react-router-dom` no longer exists. Routes use `Component` / `ErrorBoundary` / `loader` keys; error boundaries read the error with `useRouteError()`.
 - TanStack Query v5: object signatures only, `isPending` not `isLoading` for first load, `queryOptions()` factories, `placeholderData: keepPreviousData`.
 - Tailwind v4: CSS-first config in `src/index.css`. There is no `tailwind.config.js`; don't create one.
 - shadcn/ui (radix-nova style): add components with `pnpm dlx shadcn@latest add <name>`, never hand-write them. They import `cn` from the `cn` package. Don't edit files in `src/components/ui` unless fixing a real bug there.
@@ -35,13 +35,14 @@ Training data mixes old APIs for these libraries. Check `package.json` and use t
 
 ## Folder layout
 
+- `src/app/` - router, providers, layout and app-level routes. The only layer that composes features.
 - `src/features/<feature>/` - everything for one feature: `api.ts` (query options, fetchers, mutations), components, hooks, tests next to the code.
 - `src/components/ui/` - shadcn primitives only. `src/components/` - shared app components.
 - `src/lib/` - cross-feature code: zod schemas (`lib/schemas`), pricing, and later the http client and query client.
 - `src/mocks/` - MSW handlers, in-memory db, seed data.
 - `src/test/` - test setup and helpers. `e2e/` - Playwright specs.
 
-Features may import from `components`, `lib` and their own folder. Cross-feature imports go through the other feature's public `api.ts` only.
+Features may import from `components`, `lib` and their own folder. Cross-feature imports go through the other feature's public `api.ts` only. `src/app` may import anything; nothing imports from `src/app`.
 
 ## Code rules
 
@@ -61,6 +62,7 @@ Features may import from `components`, `lib` and their own folder. Cross-feature
 
 - Unit and component tests with Vitest + Testing Library. Query by role and accessible name, assert what the user sees. Don't test implementation details.
 - Network goes through MSW handlers in tests too. Never mock `fetch` or query hooks directly.
+- Render routes with `renderRoute(path)` from `src/test/render.tsx`: real routes, memory router, fresh query client with retries off. Override endpoints per test with `server.use(...)`.
 - Each user flow gets a Playwright spec in `e2e/`.
 - Bugs: write a failing test or Playwright repro first, then fix the root cause, then confirm the repro passes.
 
