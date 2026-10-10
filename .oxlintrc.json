@@ -15,7 +15,7 @@
     "typescript/consistent-type-imports": "error",
     "import/no-default-export": "error",
     "import/no-cycle": "error",
-    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css", "@testing-library/jest-dom/vitest"] }],
     "eqeqeq": "error",
     "no-console": ["error", { "allow": ["warn", "error"] }]
   },
