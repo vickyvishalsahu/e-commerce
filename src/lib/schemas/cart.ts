@@ -1,7 +1,9 @@
 import { z } from 'zod'
 import { centsSchema } from './common'
 
-export const cartQuantitySchema = z.int().min(1).max(99)
+export const MAX_LINE_QUANTITY = 99
+
+export const cartQuantitySchema = z.int().min(1).max(MAX_LINE_QUANTITY)
 
 export const cartItemSchema = z.object({
   id: z.string(),
