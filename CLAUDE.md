@@ -50,9 +50,10 @@ Features may import from `components`, `lib` and their own folder. Cross-feature
 - No `any`, no non-null `!`. `as` casts only for `as const`. Narrow with zod or type guards instead.
 - Every API response is parsed with its zod schema at the fetch boundary. Types come from `z.infer`, never written by hand alongside a schema.
 - Server state lives in TanStack Query only. Zustand is for UI state (drawer open, toasts); never copy API data into it.
-- Route loaders don't fetch directly. They call `queryClient.ensureQueryData(xQueryOptions(...))` and components read the same options with `useSuspenseQuery`.
+- Route loaders don't fetch directly. They call `queryClient.ensureQueryData(xQueryOptions(...))` and components read the same options with `useSuspenseQuery`. Loader factories take the query client (`categoryLoader(queryClient)`), live in `features/<feature>/loaders.ts` (not in component files, which breaks Fast Refresh), and are wired up in `createRoutes(queryClient)` in `src/app/router.tsx`. Give each loader route a `HydrateFallback` skeleton.
+- Query functions don't pass TanStack's `signal` to `request`. Loaders and components share queries, and an unmounting observer would cancel a fetch a loader is awaiting (this broke the home page under StrictMode).
 - Query keys come from the feature's key factory and include every input that changes the result.
-- Filter, sort, page and search state lives in the URL, parsed through a zod schema.
+- Filter, sort, page and search state lives in the URL, parsed leniently (bad values are dropped, never errors) by `features/catalog/listing-params.ts`. Prices in the URL are whole dollars; the API takes cents. Filter changes push history with `preventScrollReset`; paging scrolls to the top and focuses the heading.
 - Money is integer cents everywhere. Format only at render via the shared formatter. Totals come from one pure function.
 - Every view that loads data has designed loading, empty and error states. No bare spinners on full pages; use skeletons that match the layout.
 - Accessibility is part of done: semantic elements, labels on every input, visible focus, keyboard support, focus management for drawers, dialogs and step changes.
@@ -62,7 +63,8 @@ Features may import from `components`, `lib` and their own folder. Cross-feature
 
 - Unit and component tests with Vitest + Testing Library. Query by role and accessible name, assert what the user sees. Don't test implementation details.
 - Network goes through MSW handlers in tests too. Never mock `fetch` or query hooks directly.
-- Render routes with `renderRoute(path)` from `src/test/render.tsx`: real routes, memory router, fresh query client with retries off. Override endpoints per test with `server.use(...)`.
+- Render routes with `renderRoute(path)` from `src/test/render.tsx`: real routes, StrictMode, memory router, fresh query client with retries off. Override endpoints per test with `server.use(...)`.
+- After anything that navigates, wait for the UI (`findBy*` or `waitFor`), not just the URL: the URL updates before React renders the new page.
 - Each user flow gets a Playwright spec in `e2e/`.
 - Bugs: write a failing test or Playwright repro first, then fix the root cause, then confirm the repro passes.
 
