@@ -112,3 +112,21 @@ test('old results stay visible while the next page loads', async ({ page }) => {
     },
   )
 })
+
+test('filters applied in quick succession all stick while results load', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'storefront:mock-settings',
+      JSON.stringify({ latencyMs: 800, errorRate: 0 }),
+    )
+  })
+  await page.goto('/shop/textiles')
+  await expect(results(page)).toHaveCount(24)
+
+  // The second change lands while the first one's results are still loading
+  await page.getByRole('radio', { name: '4 stars & up' }).click()
+  await page.getByRole('checkbox', { name: 'In stock only' }).click()
+
+  await expect(page).toHaveURL('/shop/textiles?rating=4&inStock=true')
+  await expect(page.getByRole('button', { name: /Remove filter/ })).toHaveCount(2)
+})

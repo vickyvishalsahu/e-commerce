@@ -1,15 +1,15 @@
-import { useSearchParams } from 'react-router'
 import { clearListingFilters, updateListingParams } from './listing-params'
+import { useSearchParamsUpdate } from './use-search-params-update'
 
 /** Applies listing changes as new history entries so Back undoes a filter, without jumping to the top. */
 export function useListingNavigation() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const updateSearchParams = useSearchParamsUpdate()
 
   return {
-    searchParams,
     update: (changes: Parameters<typeof updateListingParams>[1]) =>
-      setSearchParams(updateListingParams(searchParams, changes), { preventScrollReset: true }),
-    clearFilters: () =>
-      setSearchParams(clearListingFilters(searchParams), { preventScrollReset: true }),
+      updateSearchParams((current) => updateListingParams(current, changes), {
+        preventScrollReset: true,
+      }),
+    clearFilters: () => updateSearchParams(clearListingFilters, { preventScrollReset: true }),
   }
 }
