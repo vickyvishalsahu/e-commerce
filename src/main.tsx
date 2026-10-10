@@ -14,10 +14,14 @@ async function bootstrap() {
   if (!rootElement) throw new Error('Missing #root element')
 
   await enableMocking()
+  const DevToolbar = import.meta.env.DEV
+    ? (await import('@/mocks/DevToolbar')).DevToolbar
+    : undefined
 
   createRoot(rootElement).render(
     <StrictMode>
       <App />
+      {DevToolbar && <DevToolbar />}
     </StrictMode>,
   )
 }
