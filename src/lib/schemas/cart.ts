@@ -1,6 +1,9 @@
 import { z } from 'zod'
 import { centsSchema } from './common'
 
+/** Identifies a guest cart. Signed-in shoppers are identified by their session instead. */
+export const CART_ID_HEADER = 'X-Cart-Id'
+
 export const MAX_LINE_QUANTITY = 99
 
 export const cartQuantitySchema = z.int().min(1).max(MAX_LINE_QUANTITY)

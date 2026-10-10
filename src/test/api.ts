@@ -1,5 +1,5 @@
 import { sessionSchema } from '@/lib/schemas/auth'
-import { CART_ID_HEADER } from '@/mocks/carts'
+import { CART_ID_HEADER } from '@/lib/schemas/cart'
 import { demoUser } from '@/mocks/db'
 
 interface ApiRequest {

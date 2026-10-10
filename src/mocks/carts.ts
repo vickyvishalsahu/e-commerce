@@ -1,9 +1,7 @@
-import { MAX_LINE_QUANTITY, type Cart, type CartItem } from '@/lib/schemas/cart'
+import { CART_ID_HEADER, MAX_LINE_QUANTITY, type Cart, type CartItem } from '@/lib/schemas/cart'
 import { findVariant, variantImage, variantLabel } from './catalog'
 import { createId, db, persist, type StoredCart } from './db'
 import { getSessionUserId } from './responses'
-
-export const CART_ID_HEADER = 'X-Cart-Id'
 
 function createCart(userId: string | null): StoredCart {
   const cart: StoredCart = { id: createId('cart'), userId, items: [] }
