@@ -2,6 +2,20 @@
 
 Every time the AI needed a correction, or a tool did something surprising that the AI had to catch. Newest phase first.
 
+## Phase 3 - Catalog
+
+**The first real bug was invisible to the unit tests.** All tests passed, but the home page crashed in the browser with a TanStack `CancelledError`. Under StrictMode the header's category query mounted, unmounted and remounted. Because the query function consumed the abort signal, the unmount cancelled the fetch the route loader was awaiting. The tests didn't render in StrictMode, so they never saw it. Fix order: render tests in StrictMode, watch the home test fail with the same error, then stop passing `signal` from query functions. Lesson: the test harness has to match how the app actually boots, or "green" is about a different app. Looking at the running app caught what 124 tests didn't.
+
+**The AI committed a broken fix commit.** It chained `pnpm check ; git commit` with `;` instead of `&&`, so the commit happened even though the check failed. The commit also swept in unrelated staged changes (a file deletion from earlier work). Caught by checking the committed tree in a clean git worktree; rebuilt the commit before anything was pushed. Every commit since then is verified in a throwaway worktree, which checks exactly what was committed rather than the working directory.
+
+**Flaky tests had two separate causes.** Some tests asserted right after the URL changed, before React rendered the new page; those now wait for the UI. The rest were timeouts: full-page route tests in StrictMode under parallel load take 1-5s, past Testing Library's 1s default and, once, Vitest's 5s. Raised both limits, then confirmed with 12 consecutive green runs instead of trusting one.
+
+**Screenshots caught a UX problem.** An empty search showed a price filter of 0–0 and a sort dropdown with nothing to sort. Filters and sort now only appear when there is something to narrow, or when filters caused the empty result.
+
+**The safety net worked as intended.** A cleanup command `rm -f $SP/*.png` was blocked because an unset variable would make it dangerous. The AI used a fresh folder instead of finding a way around the block.
+
+**Known limitation.** Product photos come from picsum.photos, which serves random scenery, so a pendant light may show a bridge. Fine for a mock; real product images are out of scope.
+
 ## Phase 2 - App shell
 
 **React Router is on v8, not v7.** Same story as MSW: the plan and CLAUDE.md both said v7. Checking the registry before writing any routing code showed v8, so the AI read the changelog first. The changes that matter here: `RouterProvider` moved to `react-router/dom` and `react-router-dom` is gone. Lesson: pin "check the installed major" as a step, not a hope. Version drift has now hit two of the first three phases.
