@@ -54,6 +54,8 @@ Features may import from `components`, `lib` and their own folder. Cross-feature
 - Query functions don't pass TanStack's `signal` to `request`. Loaders and components share queries, and an unmounting observer would cancel a fetch a loader is awaiting (this broke the home page under StrictMode).
 - Query keys come from the feature's key factory and include every input that changes the result.
 - Filter, sort, page and search state lives in the URL, parsed leniently (bad values are dropped, never errors) by `features/catalog/listing-params.ts`. Prices in the URL are whole dollars; the API takes cents. Filter changes push history with `preventScrollReset`; paging scrolls to the top and focuses the heading.
+- Change search params through `useSearchParamsUpdate` (`features/catalog/use-search-params-update.ts`), never a bare `setSearchParams(updater)`. React Router's updater sees the last rendered URL, so a second change made while a loader runs drops the first.
+- Product variant selection (`?color=&size=`) lives in the URL too, parsed by `features/catalog/variant-selection.ts`. It replaces history so Back leaves the product.
 - Money is integer cents everywhere. Format only at render via the shared formatter. Totals come from one pure function.
 - Every view that loads data has designed loading, empty and error states. No bare spinners on full pages; use skeletons that match the layout.
 - Accessibility is part of done: semantic elements, labels on every input, visible focus, keyboard support, focus management for drawers, dialogs and step changes.
