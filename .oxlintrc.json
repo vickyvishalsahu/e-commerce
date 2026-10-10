@@ -26,6 +26,10 @@
     {
       "files": ["*.config.ts", "e2e/**"],
       "rules": { "import/no-default-export": "off" }
+    },
+    {
+      "files": ["scripts/**"],
+      "rules": { "no-console": "off" }
     }
   ],
   "ignorePatterns": ["dist", "src/components/ui/**"]
