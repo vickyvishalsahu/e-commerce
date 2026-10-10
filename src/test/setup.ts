@@ -16,6 +16,9 @@ window.matchMedia ??= (query: string) => ({
   dispatchEvent: () => false,
 })
 
+// jsdom doesn't implement scrolling; ScrollRestoration calls it on every navigation
+window.scrollTo = () => undefined
+
 beforeAll(() => {
   server.listen({ onUnhandledFrame: 'error' })
 })
