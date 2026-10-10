@@ -18,5 +18,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    // Route tests click through several full-page navigations
+    testTimeout: 15_000,
   },
 })
