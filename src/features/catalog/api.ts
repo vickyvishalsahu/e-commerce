@@ -1,10 +1,12 @@
-import { queryOptions } from '@tanstack/react-query'
+import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query'
 import { z } from 'zod'
 import { request } from '@/lib/http'
 import {
   categoryWithCountSchema,
   productListResponseSchema,
   productSchema,
+  productSummarySchema,
+  reviewListResponseSchema,
   type ProductListQuery,
 } from '@/lib/schemas/catalog'
 
@@ -13,7 +15,11 @@ export const catalogKeys = {
   categories: () => [...catalogKeys.all, 'categories'] as const,
   productList: (query: ProductListQuery) => [...catalogKeys.all, 'products', query] as const,
   product: (slug: string) => [...catalogKeys.all, 'product', slug] as const,
+  reviews: (slug: string) => [...catalogKeys.product(slug), 'reviews'] as const,
+  related: (slug: string) => [...catalogKeys.product(slug), 'related'] as const,
 }
+
+export const REVIEWS_PAGE_SIZE = 5
 
 export function categoriesQueryOptions() {
   return queryOptions({
@@ -46,5 +52,25 @@ export function productQueryOptions(slug: string) {
   return queryOptions({
     queryKey: catalogKeys.product(slug),
     queryFn: () => request(`/api/products/${slug}`, { schema: productSchema }),
+  })
+}
+
+export function reviewsQueryOptions(slug: string) {
+  return infiniteQueryOptions({
+    queryKey: catalogKeys.reviews(slug),
+    queryFn: ({ pageParam }) =>
+      request(`/api/products/${slug}/reviews?page=${pageParam}&pageSize=${REVIEWS_PAGE_SIZE}`, {
+        schema: reviewListResponseSchema,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (last) => (last.page < last.totalPages ? last.page + 1 : undefined),
+  })
+}
+
+export function relatedProductsQueryOptions(slug: string) {
+  return queryOptions({
+    queryKey: catalogKeys.related(slug),
+    queryFn: () =>
+      request(`/api/products/${slug}/related`, { schema: z.array(productSummarySchema) }),
   })
 }
