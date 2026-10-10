@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatPrice } from '@/lib/format'
+import { formatDate, formatPrice } from '@/lib/format'
 
 describe('formatPrice', () => {
   it('drops cents for whole-dollar amounts', () => {
@@ -17,5 +17,12 @@ describe('formatPrice', () => {
 
   it('formats zero', () => {
     expect(formatPrice(0)).toBe('$0')
+  })
+})
+
+describe('formatDate', () => {
+  it('formats the calendar date in UTC', () => {
+    expect(formatDate('2026-03-04T10:00:00.000Z')).toBe('Mar 4, 2026')
+    expect(formatDate('2026-03-04T23:30:00.000Z')).toBe('Mar 4, 2026')
   })
 })
