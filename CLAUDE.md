@@ -38,7 +38,7 @@ Training data mixes old APIs for these libraries. Check `package.json` and use t
 - `src/app/` - router, providers, layout and app-level routes. The only layer that composes features.
 - `src/features/<feature>/` - everything for one feature: `api.ts` (query options, fetchers, mutations), components, hooks, tests next to the code.
 - `src/components/ui/` - shadcn primitives only. `src/components/` - shared app components.
-- `src/lib/` - cross-feature code: zod schemas (`lib/schemas`), pricing, and later the http client and query client.
+- `src/lib/` - cross-feature code: zod schemas (`lib/schemas`), pricing, the http client (`request`, `ApiError`) and the query client.
 - `src/mocks/` - MSW handlers, in-memory db, seed data.
 - `src/test/` - test setup and helpers. `e2e/` - Playwright specs.
 
