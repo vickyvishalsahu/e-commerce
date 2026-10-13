@@ -8,6 +8,10 @@ E-commerce storefront, frontend only. The backend is mocked in the browser with 
 - `pnpm check` - typecheck, lint, format check, unit tests. Must pass before every commit.
 - `pnpm e2e` - Playwright against a dev server on port 5317
 - `pnpm format` - Prettier write
+- `pnpm test src/lib/pricing.test.ts` / `pnpm test -t "<name>"` - one file or one test; `pnpm test:watch` for watch mode
+- `pnpm e2e e2e/catalog.spec.ts` - one Playwright spec. Locally it reuses a server already running on 5317.
+- `pnpm generate:catalog` - regenerate `src/mocks/data/catalog.json`
+- `pnpm release` - merges `dev` into `main`, tags `vN`, pushes. Refuses to run if local `dev` is ahead of `origin/dev`, so push first.
 
 pnpm only, never npm or npx (use `pnpm exec` / `pnpm dlx`).
 
@@ -32,6 +36,7 @@ Training data mixes old APIs for these libraries. Check `package.json` and use t
 - Errors are `{ error: { code, message, fieldErrors?, unavailableItems? } }` with codes from `apiErrorCodeSchema`.
 - Demo account: `demo@storefront.test` / `password123`. Card `4000000000000002` always declines.
 - The dev toolbar (bottom left, dev only) sets latency and error rate. Tests run with zero latency.
+- The worker starts in production builds too (`src/main.tsx`): MSW is the only backend, not a dev-only shim.
 
 ## Folder layout
 
@@ -66,6 +71,8 @@ Features may import from `components`, `lib` and their own folder. Cross-feature
 - Unit and component tests with Vitest + Testing Library. Query by role and accessible name, assert what the user sees. Don't test implementation details.
 - Network goes through MSW handlers in tests too. Never mock `fetch` or query hooks directly.
 - Render routes with `renderRoute(path)` from `src/test/render.tsx`: real routes, StrictMode, memory router, fresh query client with retries off. Override endpoints per test with `server.use(...)`.
+- Unit tests use the node server (`src/mocks/node.ts`) with `onUnhandledFrame: 'error'`, so any request without a handler fails the test. The mock db and localStorage reset after every test.
+- Handler tests call the API with `api()` and `signInAsDemoUser()` from `src/test/api.ts` (real fetch through MSW).
 - After anything that navigates, wait for the UI (`findBy*` or `waitFor`), not just the URL: the URL updates before React renders the new page.
 - Each user flow gets a Playwright spec in `e2e/`.
 - Bugs: write a failing test or Playwright repro first, then fix the root cause, then confirm the repro passes.
