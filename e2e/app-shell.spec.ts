@@ -17,13 +17,16 @@ test('header shows categories and an empty cart', async ({ page }) => {
 test('category links navigate client-side and mark the active category', async ({ page }) => {
   await page.goto('/')
 
-  await page
-    .getByRole('navigation', { name: 'Categories' })
-    .getByRole('link', { name: 'Lighting' })
-    .click()
+  const categoryNav = page.getByRole('navigation', { name: 'Categories' })
+  await categoryNav.getByRole('link', { name: 'Lighting' }).click()
 
   await expect(page).toHaveURL('/shop/lighting')
-  await expect(page.getByRole('link', { name: 'Lighting' })).toHaveAttribute('aria-current', 'page')
+  // The URL changes before the page renders, and the home page has its own Lighting card link
+  await expect(page.getByRole('heading', { level: 1, name: 'Lighting' })).toBeVisible()
+  await expect(categoryNav.getByRole('link', { name: 'Lighting' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
 })
 
 test('search submits to the search page and keeps the query in the field', async ({ page }) => {
