@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { renderRoute } from '@/test/render'
 
@@ -13,6 +13,18 @@ describe('SearchPage', () => {
     expect(cards.length).toBeGreaterThan(0)
     for (const card of cards) expect(card).toHaveTextContent(/dutch oven/i)
     expect(screen.getByRole('searchbox', { name: 'Search products' })).toHaveValue('dutch oven')
+  })
+
+  it('sorts by best match, an option only searches offer', async () => {
+    const { router, user } = renderRoute('/search?q=linen')
+
+    const sort = await screen.findByLabelText('Sort by')
+    expect(sort).toHaveValue('relevance')
+
+    await user.selectOptions(sort, 'featured')
+    await waitFor(() => expect(router.state.location.search).toBe('?q=linen&sort=featured'))
+    await user.selectOptions(screen.getByLabelText('Sort by'), 'relevance')
+    await waitFor(() => expect(router.state.location.search).toBe('?q=linen'))
   })
 
   it('suggests categories and hides filters when nothing matches', async () => {

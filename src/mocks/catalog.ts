@@ -99,9 +99,12 @@ function toSearchable(product: Product): SearchableProduct {
 interface ListEntry {
   product: Product
   summary: ProductSummary
+  /** How well the product matches the search query; 0 when there's no search */
+  relevance: number
 }
 
 const sorters: Record<ProductListQuery['sort'], (a: ListEntry, b: ListEntry) => number> = {
+  relevance: (a, b) => b.relevance - a.relevance,
   featured: (a, b) => Number(b.product.featured) - Number(a.product.featured),
   newest: (a, b) => b.product.createdAt.localeCompare(a.product.createdAt),
   'price-asc': (a, b) =>
@@ -124,7 +127,11 @@ export async function queryProducts(query: ProductListQuery): Promise<ProductLis
     .filter((p) => category === undefined || p.categorySlug === category)
     .filter((p) => featured === undefined || p.featured === featured)
     .filter((p) => matches === null || matches.has(p.id))
-    .map((product) => ({ product, summary: toSummary(product) }))
+    .map((product) => ({
+      product,
+      summary: toSummary(product),
+      relevance: matches?.get(product.id) ?? 0,
+    }))
 
   const prices = scoped.map(({ summary }) => summary.priceCents)
   const priceRange = {

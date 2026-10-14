@@ -114,6 +114,7 @@ describe('CategoryPage', () => {
 
     expect(await results()).toHaveLength(24)
     expect(screen.getByLabelText('Sort by')).toHaveValue('featured')
+    expect(screen.queryByRole('option', { name: 'Best match' })).not.toBeInTheDocument()
   })
 
   it('shows the not found page for an unknown category', async () => {

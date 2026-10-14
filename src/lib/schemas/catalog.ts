@@ -71,7 +71,23 @@ export const productSummarySchema = z.object({
   inStock: z.boolean(),
 })
 
-export const productSortSchema = z.enum(['featured', 'newest', 'price-asc', 'price-desc', 'rating'])
+export const productSortSchema = z.enum([
+  'relevance',
+  'featured',
+  'newest',
+  'price-asc',
+  'price-desc',
+  'rating',
+])
+
+/** Searches rank by relevance unless asked otherwise; without a search there's nothing to rank by */
+export function resolveProductSort(
+  sort: z.infer<typeof productSortSchema> | undefined,
+  q?: string,
+) {
+  if (q === undefined) return sort === undefined || sort === 'relevance' ? 'featured' : sort
+  return sort ?? 'relevance'
+}
 
 export const productListQuerySchema = z
   .object({
@@ -82,7 +98,7 @@ export const productListQuerySchema = z
     rating: z.coerce.number().int().min(1).max(4).optional(),
     inStock: z.stringbool().optional(),
     featured: z.stringbool().optional(),
-    sort: productSortSchema.default('featured'),
+    sort: productSortSchema.optional(),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(48).default(24),
   })
@@ -91,6 +107,7 @@ export const productListQuerySchema = z
       minPrice === undefined || maxPrice === undefined || minPrice <= maxPrice,
     { message: 'minPrice must not exceed maxPrice', path: ['minPrice'] },
   )
+  .transform((query) => ({ ...query, sort: resolveProductSort(query.sort, query.q) }))
 
 export const productListResponseSchema = paginatedSchema(productSummarySchema).extend({
   priceRange: z.object({ minCents: centsSchema, maxCents: centsSchema }),

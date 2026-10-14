@@ -100,16 +100,27 @@ describe('GET /api/products', () => {
 
   it('ranks by meaning when the search model is available', async () => {
     const { vectors } = productEmbeddingsSchema.parse(embeddingsJson)
-    const prepBoard = catalog.products.find((p) => p.name === 'Acacia Prep Board with Scrap Drawer')
-    const vector = prepBoard && vectors[prepBoard.id]
-    if (!vector) throw new Error('Missing the prep board fixture')
-    // A query that means exactly what the prep board is for, without sharing its name
+    // Comes after its near twin, the Glass Vegetable Chopper, in the catalog
+    const chopper = catalog.products.find((p) => p.name === 'Willow Glass Vegetable Chopper')
+    const vector = chopper && vectors[chopper.id]
+    if (!vector) throw new Error('Missing the chopper fixture')
+    // A query that means exactly what this chopper is, without sharing its name
     setQueryEmbedder(() => Promise.resolve(Float32Array.from(vector)))
 
-    const result = await listProducts({ q: 'somewhere to put scraps while I cook' })
+    const result = await listProducts({ q: 'dice onions quickly' })
+    const names = result.items.map((item) => item.name)
 
-    expect(result.items.map((item) => item.name)).toContain('Acacia Prep Board with Scrap Drawer')
+    // Searches sort by relevance by default, so the closest product comes first
+    expect(names[0]).toBe('Willow Glass Vegetable Chopper')
+    expect(names).toContain('Glass Vegetable Chopper')
     expect(result.total).toBeLessThan(25)
+  })
+
+  it('ignores a relevance sort without a search', async () => {
+    const relevance = await listProducts({ sort: 'relevance' })
+    const featured = await listProducts({ sort: 'featured' })
+
+    expect(relevance.items).toEqual(featured.items)
   })
 
   it('applies filters and paging to search results', async () => {

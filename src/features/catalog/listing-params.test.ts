@@ -34,6 +34,15 @@ describe('parseListingParams', () => {
     })
   })
 
+  it('ranks searches by relevance unless another sort is chosen', () => {
+    expect(parse('q=lamp').sort).toBe('relevance')
+    expect(parse('q=lamp&sort=rating').sort).toBe('rating')
+  })
+
+  it('ignores a relevance sort when there is nothing to rank by', () => {
+    expect(parse('sort=relevance').sort).toBe('featured')
+  })
+
   it('drops invalid values instead of failing', () => {
     expect(parse('sort=cheapest&page=-2&min=abc&rating=9&inStock=yes')).toMatchObject({
       sort: 'featured',
@@ -76,6 +85,17 @@ describe('updateListingParams', () => {
     const next = updateListingParams(new URLSearchParams('page=3&q=lamp'), { rating: 4 })
 
     expect(next.toString()).toBe('q=lamp&rating=4')
+  })
+
+  it('leaves the search default sort out of the URL and records featured', () => {
+    expect(
+      updateListingParams(new URLSearchParams('q=lamp&sort=rating'), {
+        sort: 'relevance',
+      }).toString(),
+    ).toBe('q=lamp')
+    expect(
+      updateListingParams(new URLSearchParams('q=lamp'), { sort: 'featured' }).toString(),
+    ).toBe('q=lamp&sort=featured')
   })
 
   it('keeps other params when changing the page', () => {

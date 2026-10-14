@@ -109,7 +109,7 @@ export function ProductListing({
             <div className="lg:hidden">
               <FiltersSheet params={params} priceRange={data.priceRange} total={data.total} />
             </div>
-            <SortSelect sort={params.sort} />
+            <SortSelect sort={params.sort} searching={params.q !== undefined} />
           </div>
         )}
       </div>

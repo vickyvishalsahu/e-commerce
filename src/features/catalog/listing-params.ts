@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { productSortSchema, type ProductListQuery } from '@/lib/schemas/catalog'
+import { productSortSchema, resolveProductSort, type ProductListQuery } from '@/lib/schemas/catalog'
 
 export const LISTING_PAGE_SIZE = 24
 
@@ -14,7 +14,7 @@ function optionalParam<T extends z.ZodType>(schema: T) {
 const listingParamsSchema = z
   .object({
     q: optionalParam(z.string().trim().min(1)),
-    sort: productSortSchema.catch('featured'),
+    sort: productSortSchema.optional().catch(undefined),
     page: z.coerce.number().int().min(1).catch(1),
     min: optionalParam(z.coerce.number().int().nonnegative()),
     max: optionalParam(z.coerce.number().int().nonnegative()),
@@ -25,11 +25,12 @@ const listingParamsSchema = z
       .catch(undefined)
       .transform((value) => value === 'true'),
   })
-  .transform((params) =>
-    params.min !== undefined && params.max !== undefined && params.min > params.max
-      ? { ...params, min: params.max, max: params.min }
-      : params,
-  )
+  .transform((params) => {
+    const sort = resolveProductSort(params.sort, params.q)
+    return params.min !== undefined && params.max !== undefined && params.min > params.max
+      ? { ...params, sort, min: params.max, max: params.min }
+      : { ...params, sort }
+  })
 
 export type ListingParams = z.infer<typeof listingParamsSchema>
 type ListingParamChanges = Partial<Omit<ListingParams, 'q'>>
@@ -62,13 +63,16 @@ export function toProductListQuery(
  */
 export function updateListingParams(current: URLSearchParams, changes: ListingParamChanges) {
   const next = new URLSearchParams(current)
+  // The default sort depends on whether this is a search, and defaults stay out of the URL
+  const query = parseListingParams(current).q
   const set = (key: string, value: string | undefined) => {
     if (value === undefined) next.delete(key)
     else next.set(key, value)
   }
 
   for (const [key, value] of Object.entries(changes)) {
-    if (key === 'sort') set(key, value === 'featured' ? undefined : String(value))
+    if (key === 'sort')
+      set(key, value === resolveProductSort(undefined, query) ? undefined : String(value))
     else if (key === 'inStock') set(key, value ? 'true' : undefined)
     else if (key === 'page') set(key, value === 1 ? undefined : String(value))
     else set(key, value === undefined ? undefined : String(value))

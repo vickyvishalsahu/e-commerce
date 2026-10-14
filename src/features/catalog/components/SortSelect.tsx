@@ -3,6 +3,7 @@ import { productSortSchema, type ProductSort } from '@/lib/schemas/catalog'
 import { useListingNavigation } from '../use-listing-navigation'
 
 const sortLabels: Record<ProductSort, string> = {
+  relevance: 'Best match',
   featured: 'Featured',
   newest: 'Newest',
   'price-asc': 'Price: low to high',
@@ -10,7 +11,10 @@ const sortLabels: Record<ProductSort, string> = {
   rating: 'Top rated',
 }
 
-export function SortSelect({ sort }: { sort: ProductSort }) {
+/** `searching` offers Best match, which only means something when there's a query to match */
+export function SortSelect({ sort, searching }: { sort: ProductSort; searching: boolean }) {
+  const options = productSortSchema.options.filter((option) => searching || option !== 'relevance')
+
   const { update } = useListingNavigation()
 
   return (
@@ -26,7 +30,7 @@ export function SortSelect({ sort }: { sort: ProductSort }) {
           if (parsed.success) update({ sort: parsed.data })
         }}
       >
-        {productSortSchema.options.map((option) => (
+        {options.map((option) => (
           <NativeSelectOption key={option} value={option}>
             {sortLabels[option]}
           </NativeSelectOption>
