@@ -46,7 +46,8 @@ export function SearchPage() {
           <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed p-8">
             <h2 className="font-medium">No results for “{params.q}”</h2>
             <p className="text-sm text-muted-foreground">
-              Check the spelling, try a more general word, or browse a category.
+              Try describing what you need it for, like “something to boil water for tea”, or browse
+              a category.
             </p>
             <CategorySuggestions />
           </div>

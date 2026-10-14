@@ -24,7 +24,7 @@ export function SearchForm() {
           type="search"
           name="q"
           defaultValue={currentQuery}
-          placeholder="Search products"
+          placeholder="Search or describe what you need"
           required
           className="pl-9"
         />
