@@ -2,6 +2,10 @@
 
 Every time the AI needed a correction, or a tool did something surprising that the AI had to catch. Newest phase first.
 
+## Voice search
+
+**Committed without review after the rule changed.** Mid-session, a rule was added to the global CLAUDE.md: stage changes and stop for review, commit only when asked. The AI got a notice that the file had changed, but the excerpt didn't include the new line and it didn't re-read the file. It then committed voice search on its own. Nothing had been pushed, so a soft reset put the changes back in the staging area for review. Lesson: when an instructions file changes, re-read the whole thing before the next git action.
+
 ## Semantic search
 
 **The plan came out in the wrong format, twice.** The AI wrote the plan as a terminal plan file, and after being asked for a visual page, built a claude.ai artifact. The request was for the Lavish skill (`.agents/skills/lavish`), which runs `lavish-axi` and opens an annotatable review page. The fix: when a plan or other visual response is asked for here, use Lavish, get its current guidance from the CLI, and build the page in the project's own design tokens.
