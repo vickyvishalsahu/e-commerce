@@ -8,6 +8,10 @@ import {
   reviewListResponseSchema,
 } from '@/lib/schemas/catalog'
 import { apiErrorSchema } from '@/lib/schemas/common'
+import embeddingsJson from '@/mocks/data/product-embeddings.json'
+import { catalog } from '@/mocks/db'
+import { productEmbeddingsSchema } from '@/mocks/search/model'
+import { setQueryEmbedder } from '@/mocks/search/search'
 import { api } from '@/test/api'
 
 async function listProducts(params: Record<string, string> = {}) {
@@ -81,12 +85,41 @@ describe('GET /api/products', () => {
     }
   })
 
-  it('matches every search term against name and category', async () => {
-    const result = await listProducts({ q: 'linen kitchen' })
-    const all = await listProducts({ q: 'linen' })
+  it('finds products from a sentence, ignoring filler words', async () => {
+    const result = await listProducts({ q: 'I need something to boil water for tea' })
 
-    expect(all.total).toBeGreaterThan(0)
+    expect(result.total).toBeGreaterThan(0)
+    expect(result.items.every((item) => item.name.endsWith('Kettle'))).toBe(true)
+  })
+
+  it('finds nothing for gibberish', async () => {
+    const result = await listProducts({ q: 'qwzx' })
+
     expect(result.total).toBe(0)
+  })
+
+  it('ranks by meaning when the search model is available', async () => {
+    const { vectors } = productEmbeddingsSchema.parse(embeddingsJson)
+    const prepBoard = catalog.products.find((p) => p.name === 'Acacia Prep Board with Scrap Drawer')
+    const vector = prepBoard && vectors[prepBoard.id]
+    if (!vector) throw new Error('Missing the prep board fixture')
+    // A query that means exactly what the prep board is for, without sharing its name
+    setQueryEmbedder(() => Promise.resolve(Float32Array.from(vector)))
+
+    const result = await listProducts({ q: 'somewhere to put scraps while I cook' })
+
+    expect(result.items.map((item) => item.name)).toContain('Acacia Prep Board with Scrap Drawer')
+    expect(result.total).toBeLessThan(25)
+  })
+
+  it('applies filters and paging to search results', async () => {
+    const all = await listProducts({ q: 'linen', pageSize: '48' })
+    const page = await listProducts({ q: 'linen', pageSize: '5', page: '2', maxPrice: '20000' })
+
+    expect(page.total).toBeLessThan(all.total)
+    expect(page.items).toHaveLength(5)
+    expect(page.priceRange).toEqual(all.priceRange)
+    expect(page.items.every((item) => item.priceCents <= 20000)).toBe(true)
   })
 
   it('searches case-insensitively', async () => {

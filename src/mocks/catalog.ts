@@ -7,6 +7,8 @@ import type {
   Variant,
 } from '@/lib/schemas/catalog'
 import { catalog, db } from './db'
+import type { SearchableProduct } from './search/rank'
+import { searchProducts } from './search/search'
 
 function withLiveStock(product: Product): Product {
   const { stock } = db()
@@ -85,13 +87,13 @@ export function relatedProducts(product: Product, count: number): ProductSummary
     .map((p) => toSummary(withLiveStock(p)))
 }
 
-function matchesSearch(product: Product, query: string) {
-  const category = findCategory(product.categorySlug)
-  const haystack = `${product.name} ${category?.name ?? ''} ${product.description}`.toLowerCase()
-  return query
-    .toLowerCase()
-    .split(/\s+/)
-    .every((term) => haystack.includes(term))
+function toSearchable(product: Product): SearchableProduct {
+  return {
+    id: product.id,
+    name: product.name,
+    categoryName: findCategory(product.categorySlug)?.name ?? '',
+    description: product.description,
+  }
 }
 
 interface ListEntry {
@@ -111,15 +113,17 @@ const sorters: Record<ProductListQuery['sort'], (a: ListEntry, b: ListEntry) => 
     b.summary.rating.count - a.summary.rating.count,
 }
 
-export function queryProducts(query: ProductListQuery): ProductListResponse {
+export async function queryProducts(query: ProductListQuery): Promise<ProductListResponse> {
   const { category, featured, q, minPrice, maxPrice, rating, inStock } = query
+  const matches =
+    q === undefined ? null : await searchProducts(catalog.products.map(toSearchable), q)
 
   // Price bounds describe the category and search scope, before the price filter narrows it
   const scoped = catalog.products
     .map(withLiveStock)
     .filter((p) => category === undefined || p.categorySlug === category)
     .filter((p) => featured === undefined || p.featured === featured)
-    .filter((p) => q === undefined || matchesSearch(p, q))
+    .filter((p) => matches === null || matches.has(p.id))
     .map((product) => ({ product, summary: toSummary(product) }))
 
   const prices = scoped.map(({ summary }) => summary.priceCents)
@@ -128,7 +132,7 @@ export function queryProducts(query: ProductListQuery): ProductListResponse {
     maxCents: prices.length > 0 ? Math.max(...prices) : 0,
   }
 
-  const matches = scoped
+  const results = scoped
     .filter(({ summary }) => minPrice === undefined || summary.priceCents >= minPrice)
     .filter(({ summary }) => maxPrice === undefined || summary.priceCents <= maxPrice)
     .filter(({ summary }) => rating === undefined || summary.rating.average >= rating)
@@ -137,11 +141,11 @@ export function queryProducts(query: ProductListQuery): ProductListResponse {
 
   const start = (query.page - 1) * query.pageSize
   return {
-    items: matches.slice(start, start + query.pageSize).map(({ summary }) => summary),
+    items: results.slice(start, start + query.pageSize).map(({ summary }) => summary),
     page: query.page,
     pageSize: query.pageSize,
-    total: matches.length,
-    totalPages: Math.ceil(matches.length / query.pageSize),
+    total: results.length,
+    totalPages: Math.ceil(results.length / query.pageSize),
     priceRange,
   }
 }

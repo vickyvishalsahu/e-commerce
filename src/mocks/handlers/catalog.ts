@@ -19,13 +19,13 @@ const RELATED_PRODUCT_COUNT = 4
 export const catalogHandlers = [
   http.get('/api/categories', () => HttpResponse.json(listCategories())),
 
-  http.get('/api/products', ({ request }) => {
+  http.get('/api/products', async ({ request }) => {
     const query = readQuery(request, productListQuerySchema)
     if (!query.success) return validationError(query.error)
     if (query.data.category && !findCategory(query.data.category)) {
       return notFound('Category not found')
     }
-    return HttpResponse.json(queryProducts(query.data))
+    return HttpResponse.json(await queryProducts(query.data))
   }),
 
   http.get<{ slug: string }>('/api/products/:slug', ({ params }) => {

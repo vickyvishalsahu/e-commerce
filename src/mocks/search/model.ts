@@ -12,6 +12,9 @@ export const EMBEDDING_MODEL = {
   dimensions: 384,
 } as const
 
+/** bge models expect this instruction before a query, but not before the products it searches */
+export const QUERY_INSTRUCTION = 'Represent this sentence for searching relevant passages: '
+
 /** Product vectors written by `pnpm generate:catalog`. Stale vectors from another model fail to parse. */
 export const productEmbeddingsSchema = z.object({
   model: z.literal(EMBEDDING_MODEL.id),

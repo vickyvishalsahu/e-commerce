@@ -9,8 +9,9 @@ import { createQueryClient } from '@/lib/query-client'
 
 // The mock API is the only backend, so it runs in production builds too
 async function enableMocking() {
-  const { worker } = await import('@/mocks/browser')
+  const { worker, warmUpSearch } = await import('@/mocks/browser')
   await worker.start({ onUnhandledFrame: 'bypass', quiet: import.meta.env.PROD })
+  warmUpSearch()
 }
 
 async function loadDevTools() {

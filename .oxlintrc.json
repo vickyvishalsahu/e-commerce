@@ -31,6 +31,10 @@
     {
       "files": ["scripts/**"],
       "rules": { "no-console": "off" }
+    },
+    {
+      "files": ["src/mocks/search/embed.worker.ts", "src/mocks/search/worker-embedder.ts"],
+      "rules": { "unicorn/require-post-message-target-origin": "off" }
     }
   ],
   "ignorePatterns": ["dist", "src/components/ui/**"]

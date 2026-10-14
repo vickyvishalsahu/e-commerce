@@ -3,6 +3,7 @@ import { cleanup, configure } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 import { resetDatabase } from '@/mocks/db'
 import { server } from '@/mocks/node'
+import { noQueryEmbedder, setQueryEmbedder } from '@/mocks/search/search'
 
 // Route tests render full pages in StrictMode; under parallel load they can take over the 1s default
 configure({ asyncUtilTimeout: 5000 })
@@ -31,6 +32,7 @@ afterEach(() => {
   server.resetHandlers()
   localStorage.clear()
   resetDatabase()
+  setQueryEmbedder(noQueryEmbedder)
 })
 
 afterAll(() => {
