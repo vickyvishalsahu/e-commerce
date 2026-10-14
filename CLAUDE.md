@@ -37,6 +37,9 @@ Training data mixes old APIs for these libraries. Check `package.json` and use t
 - Demo account: `demo@storefront.test` / `password123`. Card `4000000000000002` always declines.
 - The dev toolbar (bottom left, dev only) sets latency and error rate. Tests run with zero latency.
 - The worker starts in production builds too (`src/main.tsx`): MSW is the only backend, not a dev-only shim.
+- Search ranks by meaning (`src/mocks/search/`). `pnpm generate:catalog` embeds each product's name, category and `purpose` into `src/mocks/data/product-embeddings.json`; rerun it after editing templates. In the browser a Web Worker embeds the query with the same model (`model.ts`, pinned revision), downloaded from Hugging Face and warmed up on idle. If it isn't ready within 4s, search falls back to keyword ranking.
+- Unit tests have no model, so search uses the keyword fallback. To cover the semantic path, set `setQueryEmbedder()` to return a product's stored vector (reset after each test). `e2e/search.spec.ts` runs the real model.
+- Searches sort by `relevance` (Best match) by default. Without `q` it falls back to `featured` (`resolveProductSort`).
 
 ## Folder layout
 
