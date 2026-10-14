@@ -2,6 +2,10 @@
 
 Every time the AI needed a correction, or a tool did something surprising that the AI had to catch. Newest phase first.
 
+## Semantic search
+
+**The plan came out in the wrong format, twice.** The AI wrote the plan as a terminal plan file, and after being asked for a visual page, built a claude.ai artifact. The request was for the Lavish skill (`.agents/skills/lavish`), which runs `lavish-axi` and opens an annotatable review page. The fix: when a plan or other visual response is asked for here, use Lavish, get its current guidance from the CLI, and build the page in the project's own design tokens.
+
 ## Phase 4 - Product detail
 
 **A flaky test was a real bug.** Two tests failed now and then: one category filter test from phase 3 and a new product page test. Both came down to the same thing: two quick changes to the URL lost the first one. React Router's `setSearchParams` updater gets the URL from the last render, not the navigation still loading. With 400ms of mock latency in dev, picking "4 stars & up" and then "In stock only" kept only the stock filter. A Playwright test with 800ms latency reproduced it. The first fix (build on `useNavigation().location`) passed alone but failed when the suite ran in parallel. Reading the router source showed why: it applies the pending navigation inside a React transition, which can render after the next click. The fix also passes `flushSync`. The repro fails on the old code and passes on the fix, checked both ways. Lesson: retrying a flaky test hides bugs like this; finding out why it flakes is what caught it.
