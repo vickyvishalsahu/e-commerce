@@ -5,7 +5,7 @@ import { catalogSeedSchema } from '@/lib/schemas/catalog'
 import { orderSchema } from '@/lib/schemas/order'
 import catalogJson from './data/catalog.json'
 
-const STORAGE_KEY = 'storefront:db:v1'
+const STORAGE_KEY = 'storefront:db:v2'
 
 export const catalog = catalogSeedSchema.parse(catalogJson)
 

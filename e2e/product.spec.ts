@@ -12,16 +12,16 @@ const option = (page: Page, name: string) =>
 
 test('choose a variant and add it to the cart from a category', async ({ page }) => {
   await page.goto('/shop/kitchen')
-  await page.getByRole('link', { name: 'Cast Iron Dutch Oven', exact: true }).click()
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cast Iron Dutch Oven')
+  await page.getByRole('link', { name: 'Cast Iron Skillet', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Cast Iron Skillet')
   await expect(page.getByRole('link', { name: 'Cart, 0 items' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Add to cart' }).click()
-  await expect(page.getByRole('radio', { name: '3.5 qt' })).toBeFocused()
+  await expect(page.getByRole('radio', { name: '8"' })).toBeFocused()
 
-  await option(page, 'Cobalt').click()
-  await option(page, '5.5 qt').click()
-  await expect(page).toHaveURL('/p/cast-iron-dutch-oven?color=Cobalt&size=5.5+qt')
+  await option(page, 'Black').click()
+  await option(page, '10"').click()
+  await expect(page).toHaveURL('/p/cast-iron-skillet?color=Black&size=10%22')
   await page.getByLabel('Quantity').selectOption('2')
   await page.getByRole('button', { name: 'Add to cart' }).click()
 
@@ -34,7 +34,7 @@ test('choose a variant and add it to the cart from a category', async ({ page })
 })
 
 test('the cart remembers what was added after a reload', async ({ page }) => {
-  await page.goto('/p/cast-iron-dutch-oven?color=Sage&size=3.5+qt')
+  await page.goto('/p/cast-iron-skillet?color=Charcoal&size=8%22')
   await page.getByRole('button', { name: 'Add to cart' }).click()
   await expect(page.getByRole('link', { name: 'Cart, 1 item' })).toBeVisible()
 
@@ -44,7 +44,7 @@ test('the cart remembers what was added after a reload', async ({ page }) => {
 
 test('product page on a phone', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/p/cast-iron-dutch-oven')
+  await page.goto('/p/cast-iron-skillet')
 
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await expect(page.getByRole('list', { name: 'Product images' })).toBeVisible()

@@ -33,6 +33,8 @@ type PaletteKey = keyof typeof palette
 
 interface ProductTemplate {
   noun: string
+  /** What the product is for, in shopper language. Search matches against it. */
+  purpose: string
   materials: string[]
   priceRange: [number, number]
   colors: PaletteKey[]
@@ -56,6 +58,8 @@ const categoryTemplates: CategoryTemplate[] = [
     templates: [
       {
         noun: 'Skillet',
+        purpose:
+          'For searing steak, frying eggs and roasting vegetables on the stove or in the oven.',
         materials: ['Cast Iron', 'Carbon Steel', 'Stainless'],
         priceRange: [35, 90],
         colors: ['black', 'charcoal'],
@@ -63,6 +67,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Dutch Oven',
+        purpose: 'For slow-cooked stews, braises, soups and baking crusty bread.',
         materials: ['Enamel', 'Cast Iron'],
         priceRange: [60, 180],
         colors: ['tomato', 'cream', 'sage', 'cobalt'],
@@ -70,6 +75,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Saucepan',
+        purpose: 'For simmering sauces, boiling pasta and reheating soup.',
         materials: ['Copper', 'Stainless', 'Enamel'],
         priceRange: [40, 140],
         colors: ['brass', 'charcoal', 'cream'],
@@ -77,12 +83,14 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: "Chef's Knife",
+        purpose: 'For chopping vegetables, slicing meat and mincing herbs.',
         materials: ['Damascus', 'High Carbon', 'Stainless'],
         priceRange: [45, 220],
         colors: ['walnut', 'black'],
       },
       {
         noun: 'Cutting Board',
+        purpose: 'For chopping vegetables, slicing bread and serving cheese.',
         materials: ['Walnut', 'Maple', 'Acacia'],
         priceRange: [30, 110],
         colors: ['natural', 'walnut'],
@@ -90,15 +98,47 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Mixing Bowl Set',
+        purpose: 'For whisking batter, tossing salads and prepping ingredients.',
         materials: ['Stoneware', 'Stainless', 'Glass'],
         priceRange: [28, 75],
         colors: ['cream', 'sage', 'white'],
       },
       {
         noun: 'Kettle',
+        purpose: 'For boiling water for tea, coffee and pour-over.',
         materials: ['Enamel', 'Stainless', 'Copper'],
         priceRange: [45, 130],
         colors: ['cream', 'charcoal', 'brass'],
+      },
+      {
+        noun: 'Prep Board with Scrap Drawer',
+        purpose:
+          'For chopping vegetables on top, then sweeping peels and scraps into the slide-out drawer to compost or bin separately.',
+        materials: ['Walnut', 'Bamboo', 'Acacia'],
+        priceRange: [55, 120],
+        colors: ['natural', 'walnut'],
+      },
+      {
+        noun: 'Compost Caddy',
+        purpose:
+          'For collecting vegetable peels, coffee grounds and food scraps on the counter, with a charcoal filter lid that keeps smells in.',
+        materials: ['Stoneware', 'Stainless', 'Enamel'],
+        priceRange: [28, 70],
+        colors: ['sage', 'cream', 'charcoal'],
+      },
+      {
+        noun: 'Vegetable Chopper',
+        purpose: 'For dicing onions, peppers and carrots fast, straight into a lidded tray.',
+        materials: ['Stainless', 'Glass'],
+        priceRange: [24, 55],
+        colors: ['white', 'charcoal'],
+      },
+      {
+        noun: 'Y-Peeler',
+        purpose: 'For peeling potatoes, carrots, apples and citrus quickly.',
+        materials: ['Stainless', 'Carbon Steel'],
+        priceRange: [10, 28],
+        colors: ['black', 'sage', 'tomato'],
       },
     ],
   },
@@ -110,18 +150,21 @@ const categoryTemplates: CategoryTemplate[] = [
     templates: [
       {
         noun: 'Dining Chair',
+        purpose: 'For sitting comfortably through long dinners at the table.',
         materials: ['Oak', 'Walnut', 'Ash'],
         priceRange: [140, 380],
         colors: ['natural', 'walnut', 'black'],
       },
       {
         noun: 'Side Table',
+        purpose: 'For keeping a lamp, book or drink within reach of the sofa or bed.',
         materials: ['Oak', 'Marble', 'Travertine'],
         priceRange: [120, 420],
         colors: ['natural', 'white', 'oat'],
       },
       {
         noun: 'Bookshelf',
+        purpose: 'For storing and displaying books, records and plants.',
         materials: ['Oak', 'Pine', 'Steel'],
         priceRange: [180, 650],
         colors: ['natural', 'black', 'white'],
@@ -129,18 +172,21 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Lounge Chair',
+        purpose: 'For reading, napping and relaxing in the living room.',
         materials: ['Bouclé', 'Leather', 'Linen'],
         priceRange: [450, 1400],
         colors: ['cream', 'walnut', 'olive', 'slate'],
       },
       {
         noun: 'Coffee Table',
+        purpose: 'For setting down drinks, books and snacks in front of the sofa.',
         materials: ['Oak', 'Walnut', 'Travertine'],
         priceRange: [280, 950],
         colors: ['natural', 'walnut', 'oat'],
       },
       {
         noun: 'Bench',
+        purpose: 'For extra seating at the table or a spot to put on shoes in the entryway.',
         materials: ['Ash', 'Oak', 'Cane'],
         priceRange: [160, 480],
         colors: ['natural', 'black'],
@@ -156,18 +202,21 @@ const categoryTemplates: CategoryTemplate[] = [
     templates: [
       {
         noun: 'Table Lamp',
+        purpose: 'For soft reading light on a nightstand or side table.',
         materials: ['Ceramic', 'Brass', 'Rattan'],
         priceRange: [70, 260],
         colors: ['cream', 'brass', 'terracotta', 'sage'],
       },
       {
         noun: 'Floor Lamp',
+        purpose: 'For lighting a dark corner or a reading chair without a table.',
         materials: ['Brass', 'Steel', 'Linen'],
         priceRange: [160, 520],
         colors: ['brass', 'black', 'white'],
       },
       {
         noun: 'Pendant Light',
+        purpose: 'For hanging over a dining table or kitchen island.',
         materials: ['Glass', 'Rattan', 'Aluminum'],
         priceRange: [90, 380],
         colors: ['white', 'natural', 'black'],
@@ -175,12 +224,14 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Wall Sconce',
+        purpose: 'For hallway, bedside or bathroom light that saves surface space.',
         materials: ['Brass', 'Plaster', 'Steel'],
         priceRange: [80, 240],
         colors: ['brass', 'white', 'black'],
       },
       {
         noun: 'Desk Lamp',
+        purpose: 'For focused task light when working, writing or studying.',
         materials: ['Steel', 'Aluminum', 'Brass'],
         priceRange: [60, 210],
         colors: ['black', 'white', 'cobalt'],
@@ -195,6 +246,7 @@ const categoryTemplates: CategoryTemplate[] = [
     templates: [
       {
         noun: 'Throw Blanket',
+        purpose: 'For staying warm on the sofa or adding a layer to the bed.',
         materials: ['Linen', 'Wool', 'Cotton'],
         priceRange: [60, 180],
         colors: ['sage', 'oat', 'rose', 'charcoal'],
@@ -202,6 +254,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Duvet Cover',
+        purpose: 'For protecting your duvet and changing the look of the bed.',
         materials: ['Linen', 'Percale', 'Sateen'],
         priceRange: [110, 320],
         colors: ['white', 'oat', 'sage', 'slate'],
@@ -209,6 +262,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Sheet Set',
+        purpose: 'For a soft, breathable bed that keeps you cool at night.',
         materials: ['Linen', 'Percale', 'Sateen'],
         priceRange: [90, 260],
         colors: ['white', 'cream', 'indigo'],
@@ -216,6 +270,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Pillow Cover',
+        purpose: 'For refreshing sofa cushions and adding color to a room.',
         materials: ['Linen', 'Velvet', 'Wool'],
         priceRange: [28, 75],
         colors: ['terracotta', 'olive', 'cream', 'indigo'],
@@ -223,6 +278,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Area Rug',
+        purpose: 'For warming up a floor, softening footsteps and defining a seating area.',
         materials: ['Wool', 'Jute', 'Cotton'],
         priceRange: [150, 980],
         colors: ['oat', 'natural', 'slate'],
@@ -238,6 +294,7 @@ const categoryTemplates: CategoryTemplate[] = [
     templates: [
       {
         noun: 'Bath Towel',
+        purpose: 'For drying off after a shower or bath.',
         materials: ['Waffle', 'Turkish Cotton', 'Organic Cotton'],
         priceRange: [18, 48],
         colors: ['white', 'oat', 'sage', 'rose'],
@@ -245,6 +302,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Robe',
+        purpose: 'For wrapping up warm after a shower or lounging on a slow morning.',
         materials: ['Waffle', 'Terry', 'Linen'],
         priceRange: [70, 160],
         colors: ['white', 'oat', 'slate'],
@@ -252,18 +310,21 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Bath Mat',
+        purpose: 'For stepping out of the shower onto something dry and non-slip.',
         materials: ['Cotton', 'Teak', 'Diatomite'],
         priceRange: [25, 85],
         colors: ['white', 'natural', 'charcoal'],
       },
       {
         noun: 'Soap Dish',
+        purpose: 'For keeping a bar of soap dry and tidy by the sink or shower.',
         materials: ['Marble', 'Ceramic', 'Teak'],
         priceRange: [14, 40],
         colors: ['white', 'terracotta', 'natural'],
       },
       {
         noun: 'Shower Curtain',
+        purpose: 'For keeping water in the tub and adding softness to the bathroom.',
         materials: ['Linen', 'Waffle', 'Cotton'],
         priceRange: [45, 110],
         colors: ['white', 'sage', 'oat'],
@@ -278,6 +339,7 @@ const categoryTemplates: CategoryTemplate[] = [
     templates: [
       {
         noun: 'Vase',
+        purpose: 'For displaying fresh flowers, dried stems and branches.',
         materials: ['Stoneware', 'Glass', 'Terracotta'],
         priceRange: [30, 140],
         colors: ['cream', 'terracotta', 'sage', 'black'],
@@ -285,6 +347,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Mirror',
+        purpose: 'For checking your outfit, brightening a room and making it feel bigger.',
         materials: ['Brass', 'Oak', 'Iron'],
         priceRange: [120, 480],
         colors: ['brass', 'natural', 'black'],
@@ -292,18 +355,21 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Candle Holder',
+        purpose: 'For holding taper or pillar candles on the table or mantel.',
         materials: ['Brass', 'Ceramic', 'Marble'],
         priceRange: [22, 80],
         colors: ['brass', 'white', 'charcoal'],
       },
       {
         noun: 'Wall Clock',
+        purpose: 'For telling the time at a glance in the kitchen or living room.',
         materials: ['Oak', 'Steel', 'Walnut'],
         priceRange: [55, 160],
         colors: ['natural', 'black', 'walnut'],
       },
       {
         noun: 'Storage Basket',
+        purpose: 'For hiding away blankets, toys, laundry and clutter.',
         materials: ['Seagrass', 'Rattan', 'Jute'],
         priceRange: [28, 95],
         colors: ['natural', 'oat'],
@@ -319,12 +385,14 @@ const categoryTemplates: CategoryTemplate[] = [
     templates: [
       {
         noun: 'Lounge Chair',
+        purpose: 'For relaxing in the sun on the patio, deck or by the pool.',
         materials: ['Teak', 'Aluminum', 'Rope'],
         priceRange: [240, 780],
         colors: ['natural', 'white', 'charcoal'],
       },
       {
         noun: 'Planter',
+        purpose: 'For growing herbs, flowers and small trees on a balcony or patio.',
         materials: ['Terracotta', 'Concrete', 'Fiberstone'],
         priceRange: [30, 180],
         colors: ['terracotta', 'slate', 'white'],
@@ -332,6 +400,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Outdoor Rug',
+        purpose: 'For a soft, weatherproof surface on the patio or deck.',
         materials: ['Polypropylene', 'Recycled PET'],
         priceRange: [90, 340],
         colors: ['indigo', 'oat', 'olive'],
@@ -339,6 +408,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Lantern',
+        purpose: 'For candlelight on the patio, garden path or table at night.',
         materials: ['Iron', 'Teak', 'Glass'],
         priceRange: [40, 150],
         colors: ['black', 'natural', 'brass'],
@@ -346,6 +416,7 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Dining Table',
+        purpose: 'For eating outside with family and friends.',
         materials: ['Teak', 'Aluminum', 'Acacia'],
         priceRange: [480, 1600],
         colors: ['natural', 'charcoal'],
@@ -361,6 +432,7 @@ const categoryTemplates: CategoryTemplate[] = [
     templates: [
       {
         noun: 'Notebook',
+        purpose: 'For journaling, sketching and taking notes.',
         materials: ['Linen-Bound', 'Leather', 'Recycled Paper'],
         priceRange: [12, 45],
         colors: ['cobalt', 'tomato', 'olive', 'black'],
@@ -368,24 +440,28 @@ const categoryTemplates: CategoryTemplate[] = [
       },
       {
         noun: 'Fountain Pen',
+        purpose: 'For smooth, expressive handwriting and letter writing.',
         materials: ['Brass', 'Aluminum', 'Resin'],
         priceRange: [35, 180],
         colors: ['brass', 'black', 'cobalt'],
       },
       {
         noun: 'Desk Organizer',
+        purpose: 'For keeping pens, cables and papers tidy on the desk.',
         materials: ['Walnut', 'Steel', 'Leather'],
         priceRange: [30, 120],
         colors: ['walnut', 'black', 'natural'],
       },
       {
         noun: 'Planner',
+        purpose: 'For planning your week, tracking goals and remembering appointments.',
         materials: ['Linen-Bound', 'Leather', 'Cloth'],
         priceRange: [24, 60],
         colors: ['sage', 'indigo', 'rose'],
       },
       {
         noun: 'Card Set',
+        purpose: 'For writing thank-you notes, birthday wishes and invitations.',
         materials: ['Letterpress', 'Cotton Paper', 'Recycled Paper'],
         priceRange: [10, 32],
         colors: ['cream', 'white'],
@@ -498,7 +574,9 @@ categoryTemplates.forEach((categoryTemplate, categoryIndex) => {
   if (!category) throw new Error(`Missing category ${categoryTemplate.slug}`)
 
   for (let n = 0; n < PRODUCTS_PER_CATEGORY; n++) {
-    const template = faker.helpers.arrayElement(categoryTemplate.templates)
+    // Cycle through every template first so each one is in the catalog at least once
+    const template =
+      categoryTemplate.templates[n] ?? faker.helpers.arrayElement(categoryTemplate.templates)
     const material = faker.helpers.arrayElement(template.materials)
 
     let name = `${material} ${template.noun}`
@@ -568,7 +646,7 @@ categoryTemplates.forEach((categoryTemplate, categoryIndex) => {
       id: productId,
       slug,
       name,
-      description: `${faker.helpers.arrayElement(descriptionOpeners)} Crafted from ${material.toLowerCase()} and finished by hand.`,
+      description: `${faker.helpers.arrayElement(descriptionOpeners)} ${template.purpose} Crafted from ${material.toLowerCase()} and finished by hand.`,
       details: [`Material: ${material}`, ...faker.helpers.arrayElements(categoryTemplate.care, 2)],
       categoryId: category.id,
       categorySlug: category.slug,
