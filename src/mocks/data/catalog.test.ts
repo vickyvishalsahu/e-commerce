@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { catalogSeedSchema } from '@/lib/schemas/catalog'
+import { productEmbeddingsSchema } from '../search/model'
 import catalogJson from './catalog.json'
+import embeddingsJson from './product-embeddings.json'
 
 describe('catalog seed', () => {
   const catalog = catalogSeedSchema.parse(catalogJson)
@@ -45,6 +47,16 @@ describe('catalog seed', () => {
 
     for (const product of catalog.products) {
       expect(categoryIds.has(product.categoryId)).toBe(true)
+    }
+  })
+
+  it('has a unit-length search vector from the current model for every product', () => {
+    const { vectors } = productEmbeddingsSchema.parse(embeddingsJson)
+
+    expect(Object.keys(vectors).toSorted()).toEqual(catalog.products.map((p) => p.id).toSorted())
+    for (const vector of Object.values(vectors)) {
+      const length = Math.hypot(...vector)
+      expect(length).toBeCloseTo(1, 2)
     }
   })
 })

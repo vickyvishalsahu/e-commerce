@@ -1,14 +1,18 @@
-// Generates src/mocks/data/catalog.json. Deterministic: same seed, same catalog.
+// Generates src/mocks/data/catalog.json and the product search vectors in
+// src/mocks/data/product-embeddings.json. Deterministic: same seed, same catalog.
 // Run with `pnpm generate:catalog` after changing this file.
 import { writeFileSync } from 'node:fs'
 import { faker } from '@faker-js/faker'
+import { pipeline } from '@huggingface/transformers'
 import type { CatalogSeed, Category, Color, Product, Variant } from '../src/lib/schemas/catalog.ts'
+import { EMBEDDING_MODEL } from '../src/mocks/search/model.ts'
 
 faker.seed(20261010)
 const referenceDate = new Date('2026-10-01T00:00:00Z')
 
 const PRODUCTS_PER_CATEGORY = 25
 const OUTPUT_PATH = new URL('../src/mocks/data/catalog.json', import.meta.url)
+const EMBEDDINGS_PATH = new URL('../src/mocks/data/product-embeddings.json', import.meta.url)
 
 const palette = {
   charcoal: { name: 'Charcoal', hex: '#36393d' },
@@ -567,6 +571,8 @@ function buildCategory(template: CategoryTemplate, index: number): Category {
 const categories = categoryTemplates.map(buildCategory)
 const products: Product[] = []
 const reviews: CatalogSeed['reviews'] = []
+// What search matches each product against: the name and what it's for, not the marketing copy
+const searchTexts: string[] = []
 const usedSlugs = new Set<string>()
 
 categoryTemplates.forEach((categoryTemplate, categoryIndex) => {
@@ -642,6 +648,7 @@ categoryTemplates.forEach((categoryTemplate, categoryIndex) => {
     const ratingAverage =
       productReviews.length > 0 ? Math.round((ratingTotal / productReviews.length) * 10) / 10 : 0
 
+    searchTexts.push(`${name}. ${category.name}. ${template.purpose}`)
     products.push({
       id: productId,
       slug,
@@ -665,4 +672,28 @@ const seed: CatalogSeed = { categories, products, reviews }
 writeFileSync(OUTPUT_PATH, `${JSON.stringify(seed)}\n`)
 console.log(
   `Wrote ${products.length} products, ${reviews.length} reviews to ${OUTPUT_PATH.pathname}`,
+)
+
+const embed = await pipeline('feature-extraction', EMBEDDING_MODEL.id, {
+  revision: EMBEDDING_MODEL.revision,
+  dtype: EMBEDDING_MODEL.dtype,
+})
+const output = await embed(searchTexts, { pooling: EMBEDDING_MODEL.pooling, normalize: true })
+const [rows, dimensions] = output.dims
+if (!(output.data instanceof Float32Array) || rows !== products.length || !dimensions) {
+  throw new Error(`Unexpected embedding output with dims ${output.dims.join('x')}`)
+}
+const { data } = output
+// Four decimals keep the file small without changing any ranking
+const round = (value: number) => Math.round(value * 10_000) / 10_000
+const vectors = Object.fromEntries(
+  products.map((product, i) => [
+    product.id,
+    Array.from(data.subarray(i * dimensions, (i + 1) * dimensions), round),
+  ]),
+)
+const embeddings = { model: EMBEDDING_MODEL.id, revision: EMBEDDING_MODEL.revision, vectors }
+writeFileSync(EMBEDDINGS_PATH, `${JSON.stringify(embeddings)}\n`)
+console.log(
+  `Wrote ${rows} product vectors (${dimensions} dimensions) to ${EMBEDDINGS_PATH.pathname}`,
 )
